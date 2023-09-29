@@ -11,14 +11,14 @@ from django.db import models
 def spend_statistic_view(request):
     subquery = RevenueStatistic.objects.filter(
         spend=OuterRef('pk')
-    ).values('revenue')
+    ).annotate(total_revenue=Sum('revenue')).values('total_revenue')
 
     queryset = SpendStatistic.objects.annotate(
         total_spend=Sum('spend'),
         total_impressions=Sum('impressions'),
         total_clicks=Sum('clicks'),
         total_conversion=Sum('conversion'),
-        revenue=Subquery(subquery, output_field=models.DecimalField())
+        total_revenue=Subquery(subquery, output_field=models.DecimalField())
     ).order_by('name', 'date')
 
     results = []
@@ -31,8 +31,10 @@ def spend_statistic_view(request):
             'total_impressions': obj.total_impressions,
             'total_clicks': obj.total_clicks,
             'total_conversion': obj.total_conversion,
-            'revenue': obj.revenue,
+            'total_revenue': obj.total_revenue,
         })
 
     return Response(results)
+
+
 

@@ -5,7 +5,7 @@ from .models import RevenueStatistic
 
 @api_view(['GET'])
 def revenue_statistic_view(request):
-    queryset = RevenueStatistic.objects.all().annotate(
+    queryset = RevenueStatistic.objects.values('name', 'date', 'spend__spend', 'spend__impressions', 'spend__clicks', 'spend__conversion').annotate(
         total_revenue=Sum('revenue')
     ).order_by('name', 'date')
 
@@ -13,13 +13,13 @@ def revenue_statistic_view(request):
 
     for obj in queryset:
         results.append({
-            'name': obj.name,
-            'date': obj.date,
-            'total_revenue': obj.total_revenue,
-            'spend': obj.spend.spend if obj.spend else None,
-            'impressions': obj.spend.impressions if obj.spend else None,
-            'clicks': obj.spend.clicks if obj.spend else None,
-            'conversion': obj.spend.conversion if obj.spend else None,
+            'name': obj['name'],
+            'date': obj['date'],
+            'total_revenue': obj['total_revenue'],
+            'spend': obj['spend__spend'],
+            'impressions': obj['spend__impressions'],
+            'clicks': obj['spend__clicks'],
+            'conversion': obj['spend__conversion'],
         })
 
     return Response(results)
