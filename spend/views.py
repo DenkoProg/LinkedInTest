@@ -21,4 +21,18 @@ def spend_statistic_view(request):
         revenue=Subquery(subquery, output_field=models.DecimalField())
     ).order_by('name', 'date')
 
-    return Response(queryset)
+    results = []
+
+    for obj in queryset:
+        results.append({
+            'name': obj.name,
+            'date': obj.date,
+            'total_spend': obj.total_spend,
+            'total_impressions': obj.total_impressions,
+            'total_clicks': obj.total_clicks,
+            'total_conversion': obj.total_conversion,
+            'revenue': obj.revenue,
+        })
+
+    return Response(results)
+
